@@ -357,16 +357,13 @@ router.post('/property-estimate', validate(schemas.PropertyEstimateCreateSchema)
 
         const existing = await crud.find_recent_duplicate_valuation(lead.id, estimate_in);
         if (existing) {
-            let stored = stored_result(existing);
-            if (!stored) {
-                stored = {
-                    status: "insufficient_data",
-                    message: "Insufficient market data for a reliable estimate.",
-                    recommendation: "Request a professional valuation from a DN Asset expert.",
-                    disclaimer: "",
-                    provider: existing.ai_provider || "unknown"
-                } as any;
-            }
+            const stored: any = stored_result(existing) || {
+                status: "insufficient_data",
+                message: "Insufficient market data for a reliable estimate.",
+                recommendation: "Request a professional valuation from a DN Asset expert.",
+                disclaimer: "",
+                provider: existing.ai_provider || "unknown"
+            };
             return res.status(201).json({
                 success: true,
                 status: stored.status,

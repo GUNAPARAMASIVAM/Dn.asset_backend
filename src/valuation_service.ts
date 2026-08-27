@@ -86,17 +86,28 @@ export interface ValuationResult {
     raw: Record<string, any>;
 }
 
-function format_inr(amount?: number): string {
+export function format_inr(amount?: number | bigint | null): string {
     if (amount === undefined || amount === null) return "-";
-    if (amount >= 1_00_00_000) {
-        let val = (amount / 1_00_00_000).toFixed(2);
+    const num = typeof amount === 'bigint' ? Number(amount) : amount;
+    if (num >= 1_00_00_000) {
+        let val = (num / 1_00_00_000).toFixed(2);
         return `₹${val.replace(/\.?0+$/, '')} Cr`;
     }
-    if (amount >= 1_00_000) {
-        let val = (amount / 1_00_000).toFixed(2);
+    if (num >= 1_00_000) {
+        let val = (num / 1_00_000).toFixed(2);
         return `₹${val.replace(/\.?0+$/, '')} Lakhs`;
     }
-    return `₹${amount.toLocaleString('en-IN')}`;
+    return `₹${num.toLocaleString('en-IN')}`;
+}
+
+export function load_uploads(raw?: string | null): any[] {
+    if (!raw) return [];
+    try {
+        const data = JSON.parse(raw);
+        return Array.isArray(data) ? data : [];
+    } catch {
+        return [];
+    }
 }
 
 function round_to(value: number, nearest: number): number {
@@ -381,7 +392,7 @@ export class ReferenceRateValuationService implements AIValuationService {
 }
 
 const VALUATION_SCHEMA = {
-    type: "object",
+    type: "object" as const,
     properties: {
         insufficient_data: {
             type: "boolean",
