@@ -2,7 +2,7 @@
   "name": "backend-node",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
     "dev": "npx tsx watch src/server.ts",
