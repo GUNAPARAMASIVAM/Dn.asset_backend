@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import * as crud from './crud';
 import * as schemas from './schemas';
@@ -225,7 +225,7 @@ router.post('/property-estimate/upload', upload.single('file'), async (req, res)
         return res.status(400).json({ success: false, detail: "Photos must be JPG, PNG or WEBP." });
     }
 
-    const file_id = uuidv4().replace(/-/g, '');
+    const file_id = randomUUID().replace(/-/g, '');
     const newPath = path.join(UPLOAD_DIR, file_id + suffix);
     fs.renameSync(file.path, newPath);
 
