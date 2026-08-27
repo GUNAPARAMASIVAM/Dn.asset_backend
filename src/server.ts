@@ -17,6 +17,11 @@ app.use(express.json());
 // Main API routes
 app.use('/api', apiRouter);
 
+// Default route for health checks
+app.get('/', (req, res) => {
+  res.send('DN Asset Backend is running successfully.');
+});
+
 // Only start the server if not running in a serverless environment (like Vercel)
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.listen(PORT, () => {
