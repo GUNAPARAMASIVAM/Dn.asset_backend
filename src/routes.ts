@@ -10,10 +10,18 @@ import { get_valuation_service, provider_status, ValuationResult, format_inr, lo
 
 export const router = Router();
 
-// Configure uploads
-const UPLOAD_DIR = process.env.DN_ASSET_UPLOAD_DIR || path.resolve(__dirname, '../../uploads');
-if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+import os from 'os';
+
+// Configure uploads (use /tmp on Vercel/Serverless environments because the rest of the filesystem is read-only)
+const isVercel = process.env.VERCEL || process.env.NODE_ENV === 'production';
+const UPLOAD_DIR = process.env.DN_ASSET_UPLOAD_DIR || (isVercel ? path.join(os.tmpdir(), 'uploads') : path.resolve(__dirname, '../../uploads'));
+
+try {
+    if (!fs.existsSync(UPLOAD_DIR)) {
+        fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    }
+} catch (error) {
+    console.error("Warning: Could not create upload directory. Vercel filesystem might be read-only.", error);
 }
 
 const MAX_UPLOAD_BYTES = parseInt(process.env.DN_ASSET_MAX_UPLOAD_BYTES || String(10 * 1024 * 1024), 10);
