@@ -253,9 +253,9 @@ function result_to_schema(result: any) {
     };
 }
 
-function stored_result(valuation: any) {
-    if (!valuation.ai_analysis) return null;
-    let analysis;
+function stored_result(valuation: any): Record<string, any> | null {
+    if (!valuation || !valuation.ai_analysis) return null;
+    let analysis: any;
     try {
         analysis = JSON.parse(valuation.ai_analysis);
     } catch {
@@ -263,18 +263,18 @@ function stored_result(valuation: any) {
     }
     const per_sqft = valuation.estimated_price_per_sqft ? parseFloat(valuation.estimated_price_per_sqft) : null;
     return {
-        status: analysis.status || "completed",
-        message: analysis.message,
+        status: analysis?.status || "completed",
+        message: analysis?.message,
         estimated_low: valuation.estimated_low,
         estimated_high: valuation.estimated_high,
         estimated_midpoint: valuation.estimated_midpoint,
         price_per_sqft: per_sqft,
         confidence_level: valuation.confidence_level,
-        valuation_factors: analysis.valuation_factors || [],
-        missing_information: analysis.missing_information || [],
-        recommendation: analysis.recommendation || "",
-        disclaimer: analysis.disclaimer || "",
-        provider: analysis.provider || valuation.ai_provider || "unknown",
+        valuation_factors: analysis?.valuation_factors || [],
+        missing_information: analysis?.missing_information || [],
+        recommendation: analysis?.recommendation || "",
+        disclaimer: analysis?.disclaimer || "",
+        provider: analysis?.provider || valuation.ai_provider || "unknown",
         estimated_low_display: format_inr(valuation.estimated_low),
         estimated_high_display: format_inr(valuation.estimated_high),
         estimated_midpoint_display: format_inr(valuation.estimated_midpoint),

@@ -13,6 +13,18 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "allowScripts": {
+    "@prisma/client": true,
+    "@prisma/engines": true,
+    "prisma": true
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "@prisma/client": true,
+      "@prisma/engines": true,
+      "prisma": true
+    }
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
     "@prisma/client": "^5.22.0",

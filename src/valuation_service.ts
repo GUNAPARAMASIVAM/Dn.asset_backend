@@ -583,21 +583,9 @@ export class ClaudeValuationService implements AIValuationService {
         const blocks = this._attachments(payload);
         blocks.push({ type: "text", text: this._property_brief(payload) });
 
-        let response;
+        let response: any;
         try {
-            // Note: Output config (structured json) is handled differently in recent Anthropic SDKs (tool use)
-            // But if it's supported directly as output_config in this version:
-            const requestPayload: any = {
-                model: CLAUDE_MODEL,
-                max_tokens: CLAUDE_MAX_TOKENS,
-                system: SYSTEM_PROMPT,
-                messages: [{ role: "user", content: blocks }]
-            };
-            
-            // For now, if output_config fails we just send it as a tool or system prompt instruction
-            // This is a simplified port assuming the SDK handles this format or we adapt it to tool calling.
-            // Using tool calling to enforce structure is the standard Anthropic approach in Node:
-            response = await client.messages.create({
+            response = await (client.messages.create as any)({
                 model: CLAUDE_MODEL,
                 max_tokens: CLAUDE_MAX_TOKENS,
                 system: SYSTEM_PROMPT,
@@ -609,7 +597,6 @@ export class ClaudeValuationService implements AIValuationService {
                 }],
                 tool_choice: { type: "tool", name: "provide_valuation" }
             });
-            
         } catch (exc: any) {
             logger.error(`Claude valuation call failed: ${exc}`);
             const result = await this.fallback.estimate(payload);
@@ -618,10 +605,12 @@ export class ClaudeValuationService implements AIValuationService {
             return result;
         }
 
-        if (response.stop_reason === "tool_use" || response.content.some(c => c.type === "tool_use")) {
-            const toolUse = response.content.find(c => c.type === "tool_use") as any;
-            if (toolUse && toolUse.input) {
-                return await this._to_result(toolUse.input, payload, response);
+        if (response && Array.isArray(response.content)) {
+            if (response.stop_reason === "tool_use" || response.content.some((c: any) => c.type === "tool_use")) {
+                const toolUse = response.content.find((c: any) => c.type === "tool_use") as any;
+                if (toolUse && toolUse.input) {
+                    return await this._to_result(toolUse.input, payload, response);
+                }
             }
         }
         
